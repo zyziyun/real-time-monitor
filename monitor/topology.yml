@@ -1,0 +1,197 @@
+hosts:
+    h1 :
+         interfaces:
+             - mac: '02:00:00:d8:c2:6b'
+               ip: 192.0.0.2/24
+               port: 1
+         programs:
+             - cmd: "echo 'Hello from h1'"
+               fg: True
+             # ucla
+             - cmd: "sudo arp -v -i h1-eth1 -s 192.0.0.1 02:00:00:42:82:67"
+               fg: True
+             - cmd: "sudo route add default h1-eth1"
+               fg: True
+             # h2
+             - cmd: "sudo arp -v -i h1-eth1 -s 192.3.0.2 02:00:00:48:c1:9e"
+             - cmd: 
+             # h3
+             - cmd: "sudo arp -v -i h1-eth1 -s 192.1.0.2 02:00:00:9c:a8:79"
+             # h4
+             - cmd: "sudo arp -v -i h1-eth1 -s 192.2.0.2 02:00:00:33:5b:bb"
+             # receive
+             - cmd: "python3 ./receive.py h1-eth1"
+             # sending -> h2
+             - cmd: "python3 ./test.py h1-eth1 192.3.0.2"
+             # sending -> h3
+             - cmd: "python3 ./test.py h1-eth1 192.1.0.2"
+             # sending -> h4
+             - cmd: "python3 ./test.py h1-eth1 192.2.0.2"
+    h2 :
+         interfaces:
+             - mac: '02:00:00:48:c1:9e'
+               ip: 192.3.0.2/24
+               port: 1
+         programs:
+             - cmd: "echo 'Hello from h2'"
+               fg: True
+             # sri
+             - cmd: "sudo arp -v -i h2-eth1 -s 192.3.0.1 02:00:00:40:e8:fb"
+               fg: True
+             - cmd: "sudo route add default h2-eth1"
+               fg: True
+             # h1
+             - cmd: "sudo arp -v -i h2-eth1 -s 192.0.0.2 02:00:00:d8:c2:6b"
+             # h3
+             - cmd: "sudo arp -v -i h2-eth1 -s 192.1.0.2 02:00:00:9c:a8:79"
+             # h4
+             - cmd: "sudo arp -v -i h2-eth1 -s 192.2.0.2 02:00:00:33:5b:bb"
+             # receive
+             - cmd: "python3 ./receive.py h2-eth1"
+             # sending -> h1
+             - cmd: "python3 ./test.py h2-eth1 192.0.0.2"
+             # sending -> h3
+             - cmd: "python3 ./test.py h2-eth1 192.1.0.2"
+             # sending -> h4
+             - cmd: "python3 ./test.py h2-eth1 192.2.0.2"
+    h3 :
+         interfaces:
+             - mac: '02:00:00:9c:a8:79'
+               ip: 192.1.0.2/24
+               port: 1
+         programs:
+             - cmd: "echo 'Hello from h3'"
+               fg: True
+             # ucsb
+             - cmd: "sudo arp -v -i h3-eth1 -s 192.1.0.1 02:00:00:16:c1:e0"
+               fg: True
+             - cmd: "sudo route add default h3-eth1"
+               fg: True
+             # h1
+             - cmd: "sudo arp -v -i h3-eth1 -s 192.0.0.2 02:00:00:d8:c2:6b"
+             # h2
+             - cmd: "sudo arp -v -i h3-eth1 -s 192.3.0.2 02:00:00:48:c1:9e"
+             # h4
+             - cmd: "sudo arp -v -i h3-eth1 -s 192.2.0.2 02:00:00:33:5b:bb"
+             # receive
+             - cmd: "python3 ./receive.py h3-eth1"
+             # sending -> h2
+             - cmd: "python3 ./test.py h3-eth1 192.3.0.2"
+             # sending -> h1
+             - cmd: "python3 ./test.py h3-eth1 192.0.0.2"
+             # sending -> h4
+             - cmd: "python3 ./test.py h3-eth1 192.2.0.2"
+    h4 :
+         interfaces:
+             - mac: '02:00:00:33:5b:bb'
+               ip: 192.2.0.2/24
+               port: 1
+         programs:
+             - cmd: "echo 'Hello from h4'"
+               fg: True
+             # utah
+             - cmd: "sudo arp -v -i h4-eth1 -s 192.2.0.1 02:00:00:d6:eb:2b"
+               fg: True
+             - cmd: "sudo route add default h4-eth1"
+               fg: True
+             # h1
+             - cmd: "sudo arp -v -i h4-eth1 -s 192.0.0.2 02:00:00:d8:c2:6b"
+             # h2
+             - cmd: "sudo arp -v -i h4-eth1 -s 192.3.0.2 02:00:00:48:c1:9e"
+             # h3
+             - cmd: "sudo arp -v -i h4-eth1 -s 192.1.0.2 02:00:00:9c:a8:79"
+             # receive
+             - cmd: "python3 ./receive.py h4-eth1"
+             # sending -> h2
+             - cmd: "python3 ./test.py h4-eth1 192.3.0.2"
+             # sending -> h3
+             - cmd: "python3 ./test.py h4-eth1 192.1.0.2"
+             # sending -> h1
+             - cmd: "python3 ./test.py h4-eth1 192.0.0.2"
+switches:
+   sri :
+         cfg: ../../../build/BMv2/networks/p4_tutorials/monitor/monitor.json
+         interfaces:
+             - link: h2
+               # ip: 192.3.0.1
+               mac: '02:00:00:40:e8:fb'
+               port: 1
+             - link: utah
+               # ip: 192.3.0.1
+               mac: '02:00:00:95:e8:82'
+               port: 2
+             - link: ucsb
+               # ip: 192.3.0.1
+               mac: '02:00:00:95:d8:82'
+               port: 3
+             - link: ucla
+               # ip: 192.3.0.1
+               mac: '02:00:00:95:c8:82'
+               port: 4
+         cmds:
+             - table_add ipv4_lpm ipv4_forward 192.3.0.2/24 => 02:00:00:48:c1:9e 1
+             - table_add ipv4_lpm ipv4_forward 192.0.0.2/24 => 02:00:00:42:82:67 4
+             - table_add ipv4_lpm ipv4_forward 192.1.0.2/24 => 02:00:00:16:c1:e0 3
+             - table_add ipv4_lpm ipv4_forward 192.2.0.2/24 => 02:00:00:d6:eb:2b 2
+             - table_set_default swtrace add_swtrace 1
+             
+   utah :
+         cfg: ../../../build/BMv2/networks/p4_tutorials/monitor/monitor.json
+         interfaces:
+             - link: h4
+               # ip: 192.2.0.1
+               mac: '02:00:00:d6:eb:2b'
+               port: 1
+             - link: sri
+               # ip: 192.2.0.1
+               mac: '02:00:00:95:e8:81'
+               port: 2
+         cmds:
+             - table_add ipv4_lpm ipv4_forward 192.2.0.2/24 => 02:00:00:33:5b:bb 1
+             - table_add ipv4_lpm ipv4_forward 192.3.0.2/24 => 02:00:00:40:e8:fb 2
+             - table_add ipv4_lpm ipv4_forward 192.1.0.2/24 => 02:00:00:16:c1:e0 2
+             - table_add ipv4_lpm ipv4_forward 192.0.0.2/24 => 02:00:00:42:82:67 2
+             - table_set_default swtrace add_swtrace 2 
+   ucsb :
+         cfg: ../../../build/BMv2/networks/p4_tutorials/monitor/monitor.json
+         interfaces:
+             - link: h3
+               # ip: 192.1.0.1
+               mac: '02:00:00:16:c1:e0'
+               port: 1
+             - link: sri
+               # ip: 192.1.0.1
+               mac: '02:00:00:95:d8:81'
+               port: 2
+             - link: ucla
+               # ip: 192.1.0.1
+               mac: '02:00:00:fb:09:05'
+               port: 3
+         cmds:
+             - table_add ipv4_lpm ipv4_forward 192.1.0.2/24 => 02:00:00:9c:a8:79 1
+             - table_add ipv4_lpm ipv4_forward 192.3.0.2/24 => 02:00:00:40:e8:fb 2
+             - table_add ipv4_lpm ipv4_forward 192.2.0.2/24 => 02:00:00:d6:eb:2b 2
+             - table_add ipv4_lpm ipv4_forward 192.0.0.2/24 => 02:00:00:42:82:67 3
+             - table_set_default swtrace add_swtrace 3     
+   ucla :
+         cfg: ../../../build/BMv2/networks/p4_tutorials/monitor/monitor.json
+         interfaces:
+             - link: h1
+               # ip: 192.0.0.1
+               mac: '02:00:00:42:82:67'
+               port: 1
+             - link: sri
+               # ip: 192.0.0.1
+               mac: '02:00:00:95:c8:81'
+               port: 2
+             - link: ucsb
+               # ip: 192.0.0.1
+               mac: '02:00:00:fb:09:06'
+               port: 3
+         cmds:
+             - table_add ipv4_lpm ipv4_forward 192.0.0.2/24 => 02:00:00:d8:c2:6b 1
+             - table_add ipv4_lpm ipv4_forward 192.3.0.2/24 => 02:00:00:40:e8:fb 2
+             - table_add ipv4_lpm ipv4_forward 192.2.0.2/24 => 02:00:00:d6:eb:2b 2
+             - table_add ipv4_lpm ipv4_forward 192.1.0.2/24 => 02:00:00:16:c1:e0 3
+             - table_set_default swtrace add_swtrace 4
+  
